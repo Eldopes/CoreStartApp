@@ -25,6 +25,11 @@ namespace CoreStartApp
         /// </summary>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                    // Переопределяем путь до статических файлов по умолчанию
+                    webBuilder.UseWebRoot("Views");
+                });
     }
 }
