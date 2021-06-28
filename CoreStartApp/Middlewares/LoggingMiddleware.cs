@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using CoreStartApp.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace CoreStartApp.Middlewares
@@ -8,13 +9,15 @@ namespace CoreStartApp.Middlewares
     public class LoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private IUserInfoRepository _repo;
         
         /// <summary>
         ///  Middleware-компонент должен иметь конструктор, принимающий RequestDelegate
         /// </summary>
-        public LoggingMiddleware(RequestDelegate next)
+        public LoggingMiddleware(RequestDelegate next, IUserInfoRepository repo)
         {
             _next = next;
+            _repo = repo;
         }
         
         /// <summary>
@@ -22,6 +25,17 @@ namespace CoreStartApp.Middlewares
         /// </summary>
         public async Task InvokeAsync(HttpContext context)
         {
+            string userAgent = context.Request.Headers["User-Agent"][0];
+
+            var newUserInfo = new UserInfo()
+            {
+                Id = Guid.NewGuid(),
+                Date = DateTime.Now,
+                UserAgent = userAgent
+            };
+
+            await _repo.Add(newUserInfo);
+            
             LogConsole(context);
             await LogFile(context);
             

@@ -4,9 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreStartApp.Middlewares;
+using CoreStartApp.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,10 +18,12 @@ namespace CoreStartApp
     public class Startup
     {
         static IWebHostEnvironment _env;
+        public IConfiguration _configurration;
         
-        public Startup(IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env, IConfiguration configuration)
         {
             _env = env;
+            _configurration = configuration;
         }
         
         // Метод вызывается средой ASP.NET.
@@ -26,6 +31,10 @@ namespace CoreStartApp
         // Документация:  https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IUserInfoRepository, UserInfoRepository>();
+            
+            string connection = _configurration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<CoreStartAppContext>(options => options.UseSqlServer(connection), ServiceLifetime.Singleton);
         }
 
         // Метод вызывается средой ASP.NET.
